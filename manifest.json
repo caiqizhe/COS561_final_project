@@ -1,0 +1,17 @@
+{
+  "name": "Get pages resource",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "Get all urls of a page",
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html",
+    "default_title": "Get pages extension"
+
+  },
+  "omnibox": { "keyword" : "omnix" },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "permissions": ["tabs", "<all_urls>", "webNavigation", "webRequest", "webRequestBlocking", "history"]
+}
