@@ -3,6 +3,7 @@ var prediction_dict = {"g":[{url:"https://www.google.com/", hit_count:1, miss_co
 var history_input = {};
 var ignore_keywords = ["http://www.", "https://www."];
 var mode = "full_mode";
+var server_address = "http://54.167.38.140:8080";
 chrome.runtime.onMessage.addListener(function setValue(request) {
   if(request.action == "setMode") {
     mode = request.resource;
@@ -101,13 +102,9 @@ var tempStorage = {};
 
 chrome.tabs.onUpdated.addListener(function(tabId , info, tab) {
     if (info.status == "complete") {
-      // chrome.tabs.executeScript(null, {
-      //   file: "inject.js"
-      // });
       var url = tab.url;
       if (url != undefined && url.indexOf("chrome://") == -1) {
-        // if(resources[url] == undefined)
-        //   resources[url] = {};
+ 
         console.log("complete");
         console.log(tempStorage[tabId])
         for(var requestId in tempStorage[tabId]) {
@@ -135,16 +132,8 @@ chrome.tabs.onUpdated.addListener(function(tabId , info, tab) {
 
 //Analyze web requests. Only fetch GET requests
 chrome.webRequest.onBeforeRequest.addListener(function(details) {
-  // var predict_url = "https://www.google.com/complete/search?client=chrome-omni&gs_ri=chrome-ext-ansg&xssi=t&";
-  // if(details.url.indexOf(predict_url) == 0) {
-  //     console.log("http://54.167.38.140:8080" + "?url=" + details.url +"");
-  //   return {redirectUrl: "http://54.167.38.140:8080" + "?url=" + details.url};
-  // }
   if(details.type == 'main_frame' && details.tabId != -1) {
        tempStorage[details.tabId] = {};
-       // tempStorage[details.tabId][details.requestId] = details;
-       // tempStorage[details.tabId][details.requestId]["startTimeStamp"] = details.timeStamp;
-       // delete tempStorage[details.tabId][details.requestId]["timeStamp"];
       return;
   }
   if(details.tabId != -1) {
@@ -188,12 +177,11 @@ function sendGetRequest(url) {
   xmlHttp.open("GET", url); // true for asynchronous 
   xmlHttp.send(null);
 }
-sendGetRequest("http://news.sina.com.cn/js/694/2012/0830/realtime.js?ver=1.5.1");
 
 function sendPostRequest(params, type) {
     params = JSON.stringify(params);
     var http = new XMLHttpRequest();
-    var url = "http://54.167.38.140:8080";
+    var url = server_address;
     http.open("POST", url);
     var milliseconds = (new Date).getTime();
     //Send the proper header information along with the request
