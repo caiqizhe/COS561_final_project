@@ -1,5 +1,6 @@
 //Predictor-------------------------------------
-var prediction_dict = {"g":[{url:"https://www.google.com/", hit_count:1, miss_count:0}]};
+var prediction_dict = {};
+//var prediction_dict = {"g":[{url:"https://www.google.com/", hit_count:10, miss_count:0}]};
 var history_input = {};
 var ignore_keywords = ["http://www.", "https://www."];
 var mode = "full_mode";
@@ -34,11 +35,20 @@ chrome.omnibox.onInputChanged.addListener(
     // Send predict header
     if(text in prediction_dict){
       var temp = {};
+      var find = false;
       temp['type'] = 'predict';
-      temp['tabUrl'] = prediction_dict[text][0]['url'];
+      for(var i in prediction_dict[text]) {
+        if(prediction_dict[text][i]["hit_count"] >= 5 && 
+          prediction_dict[text][i]["hit_count"] / (prediction_dict[text][i]["hit_count"] + prediction_dict[text][i]["miss_count"]) >= 0.9) {
+          temp['tabUrl'] = prediction_dict[text][i]['url'];
+          find = true;
+          break;
+        }
+      }
       temp['mode'] = mode;
-      sendPostRequest(temp,'predict');
-
+      if(find) {
+        sendPostRequest(temp,'predict');
+      }
     }
     suggest_array = [];
     for (var i in prediction_dict[text]) {
@@ -104,9 +114,6 @@ chrome.tabs.onUpdated.addListener(function(tabId , info, tab) {
     if (info.status == "complete") {
       var url = tab.url;
       if (url != undefined && url.indexOf("chrome://") == -1) {
- 
-        console.log("complete");
-        console.log(tempStorage[tabId])
         for(var requestId in tempStorage[tabId]) {
           if(tempStorage[tabId][requestId]['endTimeStamp'] == undefined)
             delete tempStorage[tabId][requestId];
@@ -116,7 +123,6 @@ chrome.tabs.onUpdated.addListener(function(tabId , info, tab) {
         temp['type'] = 'analyze';
         temp['tabUrl'] = url;
         sendPostRequest(temp,'analyze');
-        console.log(temp['resources']);
         if(tabId in history_input && history_input[tabId].length != 0) {
           addPredictionItem(history_input[tabId], prediction_dict, url);
           history_input[tabId] = [];
