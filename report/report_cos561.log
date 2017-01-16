@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.5.21)  15 JAN 2017 18:09
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.5.21)  15 JAN 2017 20:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -665,14 +665,16 @@ Overfull \hbox (5.0pt too wide) in paragraph at lines 8--9
 
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <12> not available
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 13.
-[2 <./ACCWeb-Arch-3.jpg>]) (./details.tex
+
+Underfull \vbox (badness 1540) has occurred while \output is active []
+
+ [2 <./ACCWeb-Arch-3.jpg>]) (./details.tex [3]
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 22.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <8> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 22.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 22.
- [3]
 LaTeX Font Info:    Try loading font information for T1+pcr on input line 36.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1pcr.fd
@@ -695,7 +697,7 @@ Underfull \hbox (badness 4132) in paragraph at lines 8--9
 \T1/ptm/m/n/10.95 Our ex-per-i-ments are con-ducted us-ing Chrome
  []
 
-<average.png, id=106, 578.16pt x 433.62pt>
+<average.png, id=108, 578.16pt x 433.62pt>
 File: average.png Graphic file (type png)
  <use average.png>
 Package pdftex.def Info: average.png used on input line 20.
@@ -705,7 +707,7 @@ Overfull \hbox (5.0pt too wide) in paragraph at lines 20--21
  [][] 
  []
 
-<median.png, id=107, 578.16pt x 433.62pt>
+<median.png, id=109, 578.16pt x 433.62pt>
 File: median.png Graphic file (type png)
  <use median.png>
 Package pdftex.def Info: median.png used on input line 27.
@@ -715,7 +717,7 @@ Overfull \hbox (5.0pt too wide) in paragraph at lines 27--28
  [][] 
  []
 
-[5 <./average.png>] <static_resource.png, id=120, 578.16pt x 433.62pt>
+[5 <./average.png>] <static_resource.png, id=123, 578.16pt x 433.62pt>
 File: static_resource.png Graphic file (type png)
 
 <use static_resource.png>
@@ -727,14 +729,15 @@ Overfull \hbox (5.0pt too wide) in paragraph at lines 42--43
  []
 
 ) (./related.tex) (./conclusion.tex
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
 Underfull \hbox (badness 1838) in paragraph at lines 4--5
 \T1/ptm/m/n/10.95 prefetch-ing to im-prove user ex-pe-ri-ence of web
  []
 
-) (./report_cos561.bbl [6 <./median.png> <./static_resource.png>])
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+)
+(./report_cos561.bbl [6 <./median.png> <./static_resource.png>])
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 152.
  [7
 
@@ -744,18 +747,25 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 152.
 (./report_cos561.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 152.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 152.
-Package rerunfilecheck Info: File `report_cos561.out' has not changed.
-(rerunfilecheck)             Checksum: 81E449D1BA667528813B05E1DB7AAF3B;857.
+
+
+Package rerunfilecheck Warning: File `report_cos561.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `report_cos561.out':
+(rerunfilecheck)             Before: 81E449D1BA667528813B05E1DB7AAF3B;857
+(rerunfilecheck)             After:  3DFF466B17F65C2A8BF7103ED34EDCA3;857.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 152.
  ) 
 Here is how much of TeX's memory you used:
- 7959 strings out of 493027
- 114590 string characters out of 6134069
- 205541 words of memory out of 5000000
+ 7962 strings out of 493027
+ 114608 string characters out of 6134069
+ 206541 words of memory out of 5000000
  11288 multiletter control sequences out of 15000+600000
  59210 words of font info for 85 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 29i,8n,43p,1127b,430s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 29i,8n,43p,1069b,432s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
 exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/te
 xlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texl
@@ -764,10 +774,10 @@ ive/2015/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2015
 dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2015/texmf-dist/fonts
 /type1/urw/times/utmr8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw
 /times/utmri8a.pfb>
-Output written on report_cos561.pdf (7 pages, 317302 bytes).
+Output written on report_cos561.pdf (7 pages, 317213 bytes).
 PDF statistics:
- 183 PDF objects out of 1000 (max. 8388607)
- 156 compressed objects within 2 object streams
- 40 named destinations out of 1000 (max. 500000)
+ 187 PDF objects out of 1000 (max. 8388607)
+ 160 compressed objects within 2 object streams
+ 43 named destinations out of 1000 (max. 500000)
  146 words of extra memory for PDF output out of 10000 (max. 10000000)
 
