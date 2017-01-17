@@ -1,56 +1,64 @@
 \section{Implementation Details}
 \label{sec:details}
 
-In this section, we present some implementation details of the three components of AccWeb.
+In this section, we present the implementation details of the three components of AccWeb.
 
 \subsection{Analyzing}
 
-There are three steps in Analyzer. First, Analyzer gets all static web resources, including the domain names for DNS prefetching and HTTP web requests for preloading. Second, Analyzer filters our static web requests that the the browser does not need to prefetch. Third, Analyzer forms link headers for each mode and stores headers in the cache.
+There are three steps in Analyzer. First, Analyzer gets all static web resources, including the domain names for DNS prefetching and HTTP web requests for preloading. Second, Analyzer filters out those static web requests that the the browser does not need to prefetch. Third, Analyzer forms link headers for each mode and stores headers in the cache.
 
-In the first step, Analyzer gets all HTTP static requests. Measuring agents navigate the same URL multiple times, and send feature vectors of all HTTP web requests, such as types of web resource, time of sending requests, and time of getting responses, to Analyzer. These features will be used in different prefetching modes. For example, in the script mode, only resources whose type is script are prefetched. By checking the recurrence of web requests, Analyzer fetches all static HTTP web requests. Besides HTTP web requests, domain names are static resources as well, which can be used for DNS-prefetch.
+In the first step, Analyzer gets all HTTP static requests. Measuring Agents navigate the same URL multiple times, and send back to Analyzer feature vectors of all HTTP web requests. A feature vector contains information like type of web resource, time of sending requests, and time of getting responses. These features will be used in different prefetching modes. For example, in the script mode, only resources with the script type are prefetched. By checking the recurrence of web requests, Analyzer fetches all static HTTP web requests. Besides HTTP web requests, domain names are static resources as well, which can be used for DNS-prefetch.
 
-Second, not all static HTTP requests need to be prefetched. Web developers set some web resources' expire date the same date as or even earlier than the current date in HTTP headers. So these web resources must be fetched every time when the browser loads webpages, even if resources have already been in the cache. In this case, Analyzer discards these resources from the cache. This step can reduce the number of prefetching resources, which is an important step for the limit mode. In the limit mode, AccWeb only selects six HTTP web requests to prefetch per domain . If some web resources becomes expired immediately after prefetched, then the limit mode will be ineffective since there are few prefetched resources that can be used during loading a web page.
+Second, not all static HTTP requests need to be prefetched. Web developers set some web resources' expire date the same date as or even earlier than the current date in HTTP headers. 
+These web resources must be fetched every time when the browser loads webpages, even if resources have already been in the cache. In this case, Analyzer discards these resources from the cache. This step can prevent unnecessary prefetching, which is particularly important for the limit mode. (In the limit mode, AccWeb only selects six HTTP web requests to prefetch per domain.) %If some web resources become expired immediately after prefetched, the limit mode will be ineffective since there are few prefetched resources that can be used during loading a web page.
 
-After storing all static web resources into cache, Analyzer forms link HTTP headers for different modes and stores headers to cache as well. This step can save the time of forming headers when the browser preloads static resources in a web page. When Predictor sends predicted URL to Prefetcher, Prefetcher gets responses directly from cache rather than spends extra time on forming link headers. Reducing the total time of fetching static resources improves the web performance of loading websites.  
+After storing all static web resources in the cache, Analyzer forms link HTTP headers for different modes and stores headers to cache as well. This step can save the time of forming headers when the browser preloads static resources in a web page. When Predictor sends predicted URL to Prefetcher, Prefetcher gets responses directly from cache rather than spends extra time on forming link headers. Reducing the total time of fetching static resources improves the web performance of loading websites.  
 
 \subsection{Prediction}
 
-The goal of Predictor is to accurately predict the URL that the user wants to visit based on his/her current input in the address bar. We first need to build a prediction table to store the user's typing and browsing history, which can be updated when there is a new browsing record, and then use this table to make predictions.
+The goal of Predictor is to accurately predict the URL that the user wants to visit based on his/her current input in the address bar. We first build a prediction table to store the user's typing and browsing history, which can be updated when there is a new browsing record, and then use this table to make predictions.
 
-Each entry in the prediction table records the user's browsing information about a (string, URL) pair. For every such pair in the table, we store 3 attributes: hit count, miss count, and confidence. We construct the table as follows. When the user types the string \textsf{str1} in the address bar and visits the URL \textsf{url1}, then for all prefix \textsf{pfx} of \textsf{str1}:
+Each entry in the prediction table records the user's browsing information about a (string, URL) pair. For every such pair in the table, we store 3 attributes: hit count, miss count, and confidence. We construct the table as follows. If the user types the string \textsf{str1} in the address bar and visits the URL \textsf{url1}, then for all prefix \textsf{pfx} of \textsf{str1}:
 \begin{itemize}
 	\item The hit count of (\textsf{pfx}, \textsf{url1}) will increase by $1$. If the pair (\textsf{pfx}, \textsf{url1}) is not in the table, it will be added to the table with hit count $1$ and miss count $0$.
 	\item For any other URL \textsf{url2} such that (\textsf{pfx}, \textsf{url2}) is in the table, the miss count of (\textsf{pfx}, \textsf{url2}) will increase by $1$.
 \end{itemize}
-For each pair, the confidence is always equal to $\frac{\text{hit count}}{\text{hit count} + \text{miss count}}$.
+For each pair, the confidence is defined to be $\frac{\text{hit count}}{\text{hit count} + \text{miss count}}$.
 
 Our rule of prediction is: when the user types a string \textsf{str} in the address bar, find the URL \textsf{url} that maximizes the confidence of (\textsf{str}, \textsf{url}) in the table. Additionally, this pair (\textsf{str}, \textsf{url}) has to satisfy two conditions: (i) the confidence is sufficiently large (say, at least $0.9$); (ii) the hit count is not too small (say, at least $5$).
 When making a prediction for prefetching, we really want the prediction to be correct otherwise the prefetching will be a waste of resources, so we impose these two restrictions. If either of these conditions is not satisfied, we will not make any prediction.
 
-We also propose a variant that extends the above prediction method. By the end of every day, we multiply all the hit counts and miss counts in the table by a factor less than 1 (say, 0.9). This explicitly attaches more importance to more recent browsing activities, which makes sense since the user's interests and browsing habits might change over time.
+We also propose a variant that extends the above prediction method. By the end of every day, we multiply all the hit counts and miss counts in the table by a factor less than 1 (say, 0.9). This method explicitly attaches more importance to more recent browsing activities, which makes sense since the user's interests and browsing habits might change over time.
 
 
 
 \subsection{Prefetching}
 
-All prefetching actions are done through adding a link header field in the response to Predictor. The link header field is an HTTP header that allows the server to point an interested client to another resource containing metadata about the requested resource. The basic format of a link header is: \texttt{Link: <meta.rdf>; rel=meta,}.
+All prefetching actions are done through adding a link header field in the response to Predictor. The link header field is an HTTP header that allows the server to point an interested client to another resource containing metadata about the requested resource. The basic format of a link header is: \[\texttt{Link: <meta.rdf>; rel=meta,}\]
+The string between \texttt{<} and \texttt{>} indicates the address of the web resource, and the value of \texttt{rel} specifies the relationship of the web resource to clients or the actions that the browser should do immediately or in the future. Available actions related to prefetching include \texttt{dns-prefetch}, \texttt{preconnect}, \texttt{prefetch}, \texttt{preload} and \texttt{prerender}. In AccWeb, we only use \texttt{dns-prefetch} and \texttt{preload}. After the browser sends an HTTP request to a server, by adding link header field in the HTTP response header, the server can require the browser to get IP address of server (\texttt{dns-prefetch}), set up a TCP connection (\texttt{preconnect}), and load web resources (\texttt{prefetch} or \texttt{preload}).
 
-The string between ``<'' and ``>'' indicates the address of the web resource, and the value of \texttt{rel} specifies the relationship of the web resource to clients or the actions that the browser should do immediately or in the future. Available actions related to prefetching include dns-prefetch, preconnect, prefetch, preload and prerender. However, in AccWeb, we only use dns-prefetch and preload. After a browser sends any HTTP requests to a server, by adding link header field in the HTTP response header, a server can require the browser to get IP address of server (dns-prefetch), set up a TCP connection (preconnect), and load web resources (prefetch or preload).
+Compared with sending requests directly by extensions on client browsers, retrieving web resources through link header field has several advantages. First, it is more convenient. The browser extension does not have to send requests directly. Second, types of web resources that can be prefetched are more flexible. The Chrome extension can only send HTTP requests and HTTP responses. Using link headers, AccWeb can ask the browser to send DNS queries, pre-establish TCP connections and send HTTP requests. This can give users more options to prefetch web resources. Third, requests are actually formed and sent by browsers when using link header fields. If web resources are in the cache of browsers, requests will not be formed. If a Chrome extension sends a web request, the browser will first check whether the cache of the browser contains the web resource and then will decide whether it should send the request to servers. This process may take about 10 milliseconds. Although the time is very short, we want to save as much time as possible.
 
-Compared with sending requests directly by extensions on client browsers, retrieving web resources through link header field has several advantages. First, it is more convenient. The browser extension does not have to send requests directly. Second, types of web resources that can be prefetched are more flexible. The Chrome extension can only send HTTP requests and HTTP responses. Using link headers, AccWeb can ask the browser to send DNS queries, pre-establish TCP connections and send HTTP requests. This can give users more options to prefetch web resources. Third, requests are actually formed and sent by browsers when using link header fields. If web resources are in the cache of browsers, requests will not be formed. If a Chrome extension sends a web request, the browser will first check whether the cache of the browser contains the web resource and then decide whether it should send the request to servers. This process may take about 10 ms. Although the time is very short, we want to save as much time as possible.
+In the following we discuss the different prefetching modes in AccWeb.
 
 \subsubsection*{DNS-prefetch mode}
-In the DNS-prefetch mode, AccWeb only prefetches IP addresses of domain names. This mode can be used when the network is in congestion. Prefetching IP addresses does not occupy much bandwidth, while AccWeb can help clients avoid DNS lookup time. The DNS-prefetch format of link header is: \texttt{Link: ``<'' + hostname + ``>; rel=dns-prefetch,''}.
+In the DNS-prefetch mode, AccWeb only prefetches IP addresses of domain names. This mode can be used when the network is in congestion. Prefetching IP addresses does not occupy much bandwidth, while AccWeb can help clients avoid DNS lookup time. The DNS-prefetch format of link header is: 
+\begin{align*}
+\texttt{Link: ``<'' + hostname + ``>;}\\
+\texttt{rel=dns-prefetch,''}
+\end{align*}
+
+%\texttt{Link: ``<'' + hostname + ``>; rel=dns-prefetch,''}
 
 
 \subsubsection*{Full load mode}
 In the full load mode, AccWeb prefetches all static resources. This mode can be used when the network condition is pretty good and the user wants to load all the resources quickly. The link header looks like:
-\texttt{Link: ``<'' + url + ``>; rel=preload,''}.
+\[\texttt{Link: ``<'' + url + ``>; rel=preload,''}\]
 This link header is also used in all the modes to be introduced below.
 
 
 \subsubsection*{Limit mode}
-In order to reduce the cost of misprediction, save the bandwidth and still improve the web performance, we design a limit mode. In this mode, AccWeb will prefetch only six HTTP web requests per domain. Prefetched HTTP requests are selected randomly. Also, Prefetching six resources per domain reduces the stalled time of web requests when loading webpages. Chrome only allows six TCP connections per domain in the HTTP/1.1 protocol, and the requests that cannot be fetched immediately are stalled in a queue. As some websites have more than thirty web requests in the same domain, the stalled time of web requests may be very long. 
+In order to reduce the cost of misprediction, save the bandwidth while still improve the web performance, we design a limit mode. In this mode, AccWeb prefetches only six HTTP web requests per domain. Prefetched HTTP requests are selected randomly. Also, Prefetching six resources per domain reduces the stalled time of web requests when loading webpages. Chrome only allows six TCP connections per domain in the HTTP/1.1 protocol, and the requests that cannot be fetched immediately are stalled in a queue. As some websites have more than thirty web requests in the same domain, the stalled time of web requests may be very long. 
 
 \subsubsection*{Image mode \& script mode}
-The image mode and the script mode are for users who mainly concern about the loading time of image or script resources. Using these modes can save the bandwidth for loading other types of resources.
+The image mode and the script mode are for users who mainly concern about the loading time of image or script resources. Using these modes can also save the bandwidth for loading other types of resources.
